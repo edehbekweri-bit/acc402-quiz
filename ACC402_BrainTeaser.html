@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ACC 402 Brain Teaser | Miva Open University</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--navy:#1A2B5F;--gold:#C9A84C;--light:#F4F6FB;--coral:#C0392B;--green:#1A6B3C;--teal:#0D7377;--white:#fff;--charcoal:#2C3E50;--lgray:#DDE3EE}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--light);min-height:100vh;color:var(--charcoal)}
+  .header{background:var(--navy);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+  .header-title{color:var(--white);font-size:13px;font-weight:600;line-height:1.3}
+  .header-sub{color:var(--gold);font-size:11px;margin-top:2px}
+  .timer{background:var(--gold);color:var(--navy);padding:6px 14px;border-radius:20px;font-weight:700;font-size:15px;min-width:70px;text-align:center;letter-spacing:1px}
+  .timer.urgent{background:var(--coral);color:var(--white);animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+  .screen{display:none;padding:20px;max-width:600px;margin:0 auto}
+  .screen.active{display:block}
+
+  /* INTRO */
+  .intro-hero{background:var(--navy);border-radius:16px;padding:32px 24px;text-align:center;margin-bottom:24px}
+  .intro-hero h1{color:var(--gold);font-size:22px;font-weight:700;margin-bottom:8px;line-height:1.3}
+  .intro-hero p{color:var(--lgray);font-size:14px;line-height:1.6}
+  .intro-badge{display:inline-block;background:var(--gold);color:var(--navy);padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:16px;letter-spacing:1px}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+  .info-card{background:var(--white);border-radius:12px;padding:16px;text-align:center;border-left:4px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .info-card .num{font-size:28px;font-weight:700;color:var(--navy)}
+  .info-card .lbl{font-size:12px;color:#888;margin-top:4px}
+  .input-group{margin-bottom:16px}
+  .input-group label{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:6px}
+  .input-group input{width:100%;padding:13px 16px;border:2px solid var(--lgray);border-radius:10px;font-size:15px;outline:none;transition:.2s;color:var(--charcoal);background:var(--white)}
+  .input-group input:focus{border-color:var(--navy)}
+  .input-group .hint{font-size:11px;color:#999;margin-top:4px}
+  .btn-start{width:100%;background:var(--navy);color:var(--white);border:none;padding:16px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:.2s;margin-top:8px}
+  .btn-start:hover{background:#142050}
+  .btn-start:disabled{background:#aaa;cursor:not-allowed}
+  .warning-box{background:#FFF3CD;border:1px solid #FFCA28;border-radius:10px;padding:14px;margin-bottom:20px;font-size:13px;color:#664D00;line-height:1.6}
+  .warning-box strong{display:block;margin-bottom:4px}
+
+  /* QUIZ */
+  .progress-bar{background:var(--lgray);border-radius:10px;height:6px;margin-bottom:20px;overflow:hidden}
+  .progress-fill{height:100%;background:var(--gold);border-radius:10px;transition:.3s}
+  .q-counter{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .q-num{font-size:13px;font-weight:600;color:var(--navy)}
+  .q-badge{background:var(--navy);color:var(--gold);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px}
+  .scenario-box{background:var(--navy);border-radius:12px;padding:18px;margin-bottom:18px}
+  .scenario-label{color:var(--gold);font-size:10px;font-weight:700;letter-spacing:1.5px;margin-bottom:8px}
+  .scenario-text{color:var(--lgray);font-size:13px;line-height:1.7}
+  .question-text{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:18px;line-height:1.6}
+  .options{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+  .option{background:var(--white);border:2px solid var(--lgray);border-radius:12px;padding:14px 16px;cursor:pointer;transition:.2s;display:flex;align-items:flex-start;gap:12px;font-size:13.5px;line-height:1.55;color:var(--charcoal)}
+  .option:hover{border-color:var(--navy);background:#EEF2FF}
+  .option.correct{border-color:var(--green)!important;background:#EAF3DE!important;color:var(--green)!important}
+  .option.wrong{border-color:var(--coral)!important;background:#FCEBEB!important;color:var(--coral)!important}
+  .opt-letter{width:28px;height:28px;min-width:28px;background:var(--lgray);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--navy);transition:.2s}
+  .option.correct .opt-letter{background:var(--green);color:#fff}
+  .option.wrong .opt-letter{background:var(--coral);color:#fff}
+  .explanation{background:var(--navy);border-radius:12px;padding:16px;margin-bottom:20px;display:none}
+  .explanation.show{display:block}
+  .explanation-label{color:var(--gold);font-size:10px;font-weight:700;letter-spacing:1.5px;margin-bottom:8px}
+  .explanation-text{color:var(--lgray);font-size:13px;line-height:1.7}
+  .btn-next{width:100%;background:var(--gold);color:var(--navy);border:none;padding:15px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:none;margin-bottom:20px}
+  .btn-next.show{display:block}
+  .btn-submit{width:100%;background:var(--coral);color:var(--white);border:none;padding:15px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:none;margin-bottom:20px}
+  .btn-submit.show{display:block}
+
+  /* RESULTS */
+  .score-hero{background:var(--navy);border-radius:16px;padding:28px 24px;text-align:center;margin-bottom:20px}
+  .score-student{color:var(--gold);font-size:13px;margin-bottom:4px;font-weight:600}
+  .score-meta{color:var(--lgray);font-size:12px;margin-bottom:14px}
+  .score-big{font-size:64px;font-weight:700;color:var(--white);line-height:1}
+  .score-label{color:var(--lgray);font-size:13px;margin-top:6px}
+  .score-grade{display:inline-block;padding:6px 20px;border-radius:20px;font-size:13px;font-weight:700;margin-top:12px;letter-spacing:1px}
+  .grade-a{background:var(--green);color:#fff}
+  .grade-b{background:var(--gold);color:var(--navy)}
+  .grade-c{background:var(--teal);color:#fff}
+  .grade-d{background:var(--coral);color:#fff}
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+  .stat-card{background:var(--white);border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .stat-num{font-size:26px;font-weight:700}
+  .stat-lbl{font-size:11px;color:#888;margin-top:3px}
+  .stat-green{color:var(--green)}
+  .stat-red{color:var(--coral)}
+  .stat-blue{color:var(--navy)}
+  .email-action{background:var(--white);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:2px solid var(--gold)}
+  .email-action h3{color:var(--navy);font-size:15px;margin-bottom:6px}
+  .email-action p{color:#666;font-size:13px;margin-bottom:14px;line-height:1.5}
+  .btn-email{width:100%;background:var(--navy);color:var(--white);border:none;padding:14px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-email:hover{background:#142050}
+  .btn-email-sent{width:100%;background:var(--green);color:var(--white);border:none;padding:14px;border-radius:10px;font-size:14px;font-weight:700;cursor:default;display:none;align-items:center;justify-content:center;gap:8px}
+  .review-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:12px}
+  .review-item{background:var(--white);border-radius:10px;padding:13px;margin-bottom:9px;border-left:4px solid var(--lgray);box-shadow:0 1px 4px rgba(0,0,0,.05)}
+  .review-item.r-correct{border-left-color:var(--green)}
+  .review-item.r-wrong{border-left-color:var(--coral)}
+  .review-q{font-size:12.5px;font-weight:600;color:var(--navy);margin-bottom:5px;line-height:1.4}
+  .review-ans{font-size:12px;margin-bottom:3px}
+  .r-correct .review-ans{color:var(--green)}
+  .r-wrong .review-ans{color:var(--coral)}
+  .review-exp{font-size:11.5px;color:#666;margin-top:5px;line-height:1.5;padding-top:5px;border-top:1px solid var(--lgray)}
+  .footer-note{background:var(--navy);border-radius:12px;padding:16px;text-align:center;margin-top:20px;color:var(--lgray);font-size:12px;line-height:1.6;margin-bottom:30px}
+  .footer-note strong{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div class="header" id="mainHeader">
+  <div>
+    <div class="header-title">ACC 402 Brain Teaser</div>
+    <div class="header-sub">Miva Open University</div>
+  </div>
+  <div class="timer" id="timer" style="display:none">20:00</div>
+</div>
+
+<!-- INTRO -->
+<div class="screen active" id="screen-intro">
+  <div class="intro-hero">
+    <div class="intro-badge">FINAL CLASS TEST</div>
+    <h1>ACC 402 Brain Teaser</h1>
+    <p>20 hard questions. All topics covered.<br>No notes. No textbooks. No second chances.</p>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card"><div class="num">20</div><div class="lbl">Questions</div></div>
+    <div class="info-card"><div class="num">20</div><div class="lbl">Minutes</div></div>
+    <div class="info-card"><div class="num">5</div><div class="lbl">Topics</div></div>
+    <div class="info-card"><div class="num">★★★</div><div class="lbl">Difficulty</div></div>
+  </div>
+
+  <div class="warning-box">
+    <strong>⚠ Before you begin</strong>
+    Once started you cannot go back. Timer counts down from 20 minutes and auto-submits when time expires. Fill all three fields below accurately — your results will be emailed to your lecturer on submission.
+  </div>
+
+  <div class="input-group">
+    <label>Full Name</label>
+    <input type="text" id="studentName" placeholder="e.g. Mark Edeh" autocomplete="name">
+  </div>
+  <div class="input-group">
+    <label>Student ID</label>
+    <input type="text" id="studentId" placeholder="e.g. 30......">
+    <div class="hint">Your 8-digit student ID starting with 30</div>
+  </div>
+  <div class="input-group">
+    <label>Your Email Address</label>
+    <input type="email" id="studentEmail" placeholder="e.g. firstname.lastname@miva.edu.ng">
+    <div class="hint">Use your official Miva email — firstname.lastname@miva.edu.ng</div>
+  </div>
+
+  <button class="btn-start" id="btnStart" onclick="startQuiz()" disabled>Begin Brain Teaser →</button>
+
+  <div style="text-align:center;margin-top:16px;color:#999;font-size:11px;padding-bottom:10px">
+    ACC 402: Corporate Reporting &nbsp;|&nbsp; Mark B. Edeh PhD Finance, CNA, DfrCIFIAN
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="screen-quiz">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="q-counter">
+    <div class="q-num" id="qNum">Question 1 of 20</div>
+    <div class="q-badge" id="qBadge">CORPORATE REPORTING</div>
+  </div>
+  <div id="scenarioBox" class="scenario-box" style="display:none">
+    <div class="scenario-label">SCENARIO</div>
+    <div class="scenario-text" id="scenarioText"></div>
+  </div>
+  <div class="question-text" id="questionText"></div>
+  <div class="options" id="optionsContainer"></div>
+  <div class="explanation" id="explanation">
+    <div class="explanation-label">EXPLANATION</div>
+    <div class="explanation-text" id="explanationText"></div>
+  </div>
+  <button class="btn-submit" id="btnSubmit" onclick="submitQuiz()">Submit All Answers</button>
+  <button class="btn-next" id="btnNext" onclick="nextQuestion()">Next Question →</button>
+</div>
+
+<!-- RESULTS -->
+<div class="screen" id="screen-results">
+  <div class="score-hero">
+    <div class="score-student" id="resultName"></div>
+    <div class="score-meta" id="resultMeta"></div>
+    <div class="score-big" id="scoreBig"></div>
+    <div class="score-label">out of 20 correct</div>
+    <div class="score-grade" id="scoreGrade"></div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num stat-green" id="statCorrect"></div><div class="stat-lbl">Correct</div></div>
+    <div class="stat-card"><div class="stat-num stat-red" id="statWrong"></div><div class="stat-lbl">Wrong</div></div>
+    <div class="stat-card"><div class="stat-num stat-blue" id="statPct"></div><div class="stat-lbl">Score %</div></div>
+  </div>
+
+  <div class="email-action">
+    <h3>📧 Send Results to Your Lecturer</h3>
+    <p>Tap the button below to open your email app with your full results pre-filled. Send the email to complete your submission.</p>
+    <button class="btn-email" id="btnEmail" onclick="sendEmail()">
+      <span>📤</span> Send Results to Lecturer
+    </button>
+    <button class="btn-email-sent" id="btnEmailSent">
+      <span>✓</span> Email Opened — Remember to Send
+    </button>
+  </div>
+
+  <div class="review-title">Question by Question Review</div>
+  <div id="reviewContainer"></div>
+
+  <div class="footer-note">
+    <strong>ACC 402: Corporate Reporting</strong><br>
+    Mark B. Edeh PhD Finance, CNA, DfrCIFIAN<br>
+    Miva Open University
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    section:"CORPORATE REPORTING",
+    scenario:"Adeyemi Holdings Plc publishes IAS 1-compliant financial statements showing \u20a68.5 billion profit. Its natural gas operations in the Niger Delta caused two significant environmental incidents during the year. No sustainability report, no governance report, and no management commentary was published. The CFO states: 'We are fully compliant with our reporting obligations.'",
+    q:"Which of the following BEST evaluates the CFO's position?",
+    opts:["The CFO is correct \u2014 IAS 1 compliance satisfies all corporate reporting obligations for a Nigerian listed company","The CFO is incorrect \u2014 NCCG 2018 requires governance disclosures and NGX Sustainability Disclosure Guidelines require ESG reporting on a comply-or-explain basis, neither of which has been satisfied","The CFO is partially correct \u2014 financial statement compliance is sufficient unless the company is specifically in the extractive sector","The CFO is incorrect \u2014 under IFRS 15, environmental incidents must be disclosed within the financial statements themselves"],
+    correct:1,
+    exp:"IAS 1 governs financial statements only. NCCG 2018 (mandatory for listed companies under FRCN) requires governance disclosures. NGX Sustainability Disclosure Guidelines require ESG reporting on a comply-or-explain basis. Both are independent of IAS 1 and neither has been met. Option D is wrong \u2014 environmental incidents are not a matter for IFRS 15."
+  },
+  {
+    section:"INTEGRATED REPORTING",
+    scenario:"Kogi Steel Plc invests \u20a62.5 billion in automating its production line under the IIRC Framework, reducing its workforce by 40%. The investment increases financial capital in year one through cost savings.",
+    q:"Which statement MOST accurately describes the integrated reporting implications of this decision?",
+    opts:["The investment creates value across all six capitals simultaneously and should be reported as an unambiguous positive development","The investment depletes human capital through workforce reduction and likely depletes social and relationship capital through community impact, while increasing manufactured and financial capital \u2014 an integrated report must make these trade-offs visible","The investment is irrelevant to integrated reporting as it affects only financial and manufactured capital, which are the primary concern of financial capital providers","The investment should not be in the integrated report because workforce changes are separately governed by the corporate governance report under NCCG 2018"],
+    correct:1,
+    exp:"The core insight of integrated thinking is capital trade-offs. Automation depletes human capital (redundancies) and likely social and relationship capital (community impact). Financial and manufactured capital increase short-term. The integrated report must make both the gains AND the depletions visible \u2014 not just the financial upside."
+  },
+  {
+    section:"CORPORATE REPORTING",
+    q:"The IFRS Conceptual Framework at paragraph 1.5 defines the primary users of general purpose financial statements. Which of the following does paragraph 1.5 MOST notably EXCLUDE from the definition of primary users?",
+    opts:["Auditors, regulators, and tax authorities who rely on financial statements for enforcement purposes","Large institutional investors and international fund managers seeking emerging market exposure","Employees, communities affected by corporate operations, and the environment","Minority shareholders and non-controlling interest holders in listed group structures"],
+    correct:2,
+    exp:"IFRS Conceptual Framework 1.5 defines primary users as existing and potential investors, lenders, and other creditors. It deliberately excludes employees, host communities, and the environment. This is a philosophical choice \u2014 IAS 1 was designed to serve capital markets. The non-financial layers of corporate reporting (NCCG, GRI, NGX SDG, IIRC) fill the accountability gap for these excluded stakeholders."
+  },
+  {
+    section:"CORPORATE REPORTING",
+    scenario:"Sunrise Telecoms Plc is listed on the NGX. It produces a well-structured integrated report referencing the IIRC Framework but submits no disclosures under the NGX Sustainability Disclosure Guidelines and provides no explanation for the omission.",
+    q:"Which statement is MOST accurate regarding Sunrise Telecoms' compliance position?",
+    opts:["Sunrise Telecoms has fully satisfied its non-financial reporting obligations by producing an integrated report \u2014 the IIRC Framework is the more comprehensive standard","Sunrise Telecoms has partially satisfied its obligations \u2014 IIRC compliance satisfies the NGX SDG requirements through the principle of equivalence","Sunrise Telecoms has not complied with the NGX SDG Guidelines, which operate on an independent comply-or-explain basis, and has not explained its non-compliance \u2014 integrated reporting does not substitute for these obligations","Sunrise Telecoms has exceeded minimum requirements since integrated reporting encompasses sustainability reporting"],
+    correct:2,
+    exp:"The NGX Sustainability Disclosure Guidelines are independent obligations for NGX-listed companies on a comply-or-explain basis. The IIRC Framework is voluntary and does not substitute for the NGX SDG requirements. A company can produce an integrated report and still fail to comply with the NGX SDG Guidelines. The frameworks are parallel obligations, not substitutes."
+  },
+  {
+    section:"CORPORATE GOVERNANCE",
+    scenario:"The audit committee of Platinum Capital Plc consists of three executive directors and one independent non-executive director. The independent NED chairs the committee. The CEO has been on the board for 24 consecutive years.",
+    q:"Which NCCG 2018 principle is MOST seriously violated by these arrangements?",
+    opts:["Transparency \u2014 the board is not disclosing sufficient information about its composition","Independence \u2014 the board lacks sufficient independent NEDs and the audit committee is dominated by executives who cannot independently oversee financial reporting they themselves prepared","Accountability \u2014 the CEO has not been held accountable for performance outcomes","Responsibility \u2014 the company is not exercising effective risk management"],
+    correct:1,
+    exp:"NCCG 2018's Independence principle requires sufficient independent NEDs to challenge management and protect shareholders. An audit committee dominated by executive directors (3 of 4) cannot independently oversee financial reporting quality. A 24-year CEO tenure also raises fundamental independence concerns. This is a structural failure of the Independence principle."
+  },
+  {
+    section:"CORPORATE GOVERNANCE",
+    scenario:"FRCN conducts a governance review and identifies systemic non-compliance with NCCG 2018 in a Nigerian financial institution. The institution argues its comply-or-explain submissions to the NGX fully discharge its governance obligations and no enforcement action is appropriate.",
+    q:"Which is the MOST accurate analysis of the institution's position?",
+    opts:["The institution is correct \u2014 comply-or-explain is the governing standard and public disclosure satisfies all enforcement requirements","The institution is incorrect \u2014 comply-or-explain is a public disclosure mechanism, not an enforcement shield; FRCN retains independent enforcement authority under the FRCN Act 2011 regardless of whether non-compliance has been publicly explained","The institution is partially correct \u2014 comply-or-explain protects against FRCN sanctions but not against SEC Nigeria","The institution is correct if the NGX has formally acknowledged receipt of the comply-or-explain submission"],
+    correct:1,
+    exp:"Comply-or-explain is a transparency mechanism \u2014 it requires companies to publicly disclose deviations. It is NOT a legal shield from enforcement. FRCN has independent enforcement authority under the FRCN Act 2011 and can impose sanctions, remove directors, and require remediation regardless of whether non-compliance has been 'explained' publicly. Explanation is not the same as compliance."
+  },
+  {
+    section:"MANAGEMENT COMMENTARY",
+    scenario:"An analyst reviewing Okafor Manufacturing Plc's management commentary finds: Section 1 (Nature of Business) is comprehensive. Section 4 (Results) covers only financial KPIs. Section 5 (Principal Risks) lists seven risks using identical language to the prior year without any update for current conditions.",
+    q:"Which statement MOST accurately describes the weakness in Okafor's management commentary?",
+    opts:["The commentary fully complies with IASB PS1 because all five sections are present \u2014 PS1 does not prescribe depth within each section","The commentary is weak but PS1 compliance cannot be assessed because PS1 is not a mandatory IFRS standard","Section 4 omits non-financial KPIs which PS1 explicitly requires, and Section 5's copy-paste risks do not reflect current-period risk evolution \u2014 both undermine the purpose of management commentary as informative rather than performative disclosure","Only the risk section is deficient \u2014 non-financial KPIs are voluntary additions under PS1 guidance"],
+    correct:2,
+    exp:"IASB PS1 requires both financial AND non-financial KPIs in the results section \u2014 omitting non-financial metrics is a clear gap. PS1 also requires risks to be specific and current to the organisation's actual situation. Copy-pasting prior year language signals the risk section is a compliance exercise rather than genuine disclosure. Together, these failures mean the commentary adds little to what the financial statements already show."
+  },
+  {
+    section:"MANAGEMENT COMMENTARY",
+    scenario:"Farida Pharma Plc reports 40% revenue growth in its management commentary but does not explain what drove the growth, does not disclose that 85% of revenue came from a single government contract expiring next year, and does not discuss what happens to revenue when that contract ends.",
+    q:"Which combination of PS1 elements is MOST critically absent?",
+    opts:["Nature of Business only \u2014 the business model has not been adequately described","Results and Performance AND Principal Risks \u2014 the 40% figure is presented without meaningful context and the critical risk of revenue concentration and contract expiry is entirely absent","Objectives and Strategies only \u2014 the company has not explained its plan for sustaining performance","Resources and Relationships only \u2014 the key government client relationship has not been disclosed"],
+    correct:1,
+    exp:"This is a compound PS1 failure. Under Results and Performance, stating 40% revenue growth without disclosing that 85% came from a single expiring contract is deeply misleading. Under Principal Risks, revenue concentration risk and contract renewal risk are among the most material risks the company faces \u2014 their complete absence is a fundamental PS1 failure that investors cannot compensate for."
+  },
+  {
+    section:"EARNINGS MANAGEMENT",
+    scenario:"A Nigerian manufacturing company's CFO proposes extending the useful lives of all production machinery from 8 years to 14 years, citing 'improved maintenance protocols.' No operational changes have occurred. This will reduce annual depreciation by \u20a61.8 billion, increasing reported EBIT by the same amount.",
+    q:"Where on the earnings management spectrum does this MOST likely sit?",
+    opts:["Conservative accounting \u2014 the original lives were too short and the extension corrects toward accurate estimates","Neutral representation \u2014 management is applying its best estimate of useful lives as required by IAS 16","Aggressive earnings management \u2014 the extension lacks operational justification and exploits IAS 16's estimate flexibility specifically to inflate reported profit without any change in underlying economic reality","Outright fraud \u2014 extending asset useful lives without operational justification is always fraudulent"],
+    correct:2,
+    exp:"IAS 16 gives management discretion over useful life estimates when new information justifies revision. Here, no operational change has occurred \u2014 the extension is motivated by the desire to reduce depreciation and improve reported EBIT. This is aggressive earnings management: technically within IAS 16's flexibility but exploiting that flexibility for a reporting purpose. It is not fraud but it clearly fails neutral representation."
+  },
+  {
+    section:"EARNINGS MANAGEMENT",
+    scenario:"Bello Agro Plc: Revenue \u20a69.0bn (from \u20a66.0bn). Receivables \u20a62.1bn (from \u20a60.6bn). Operating Cash Flow \u20a60.3bn (from \u20a61.1bn). Net Income \u20a61.2bn. Total Assets \u20a612.0bn. Industry revenue growth: 8%.",
+    q:"What is the accrual ratio and what does it most directly indicate?",
+    opts:["Accrual ratio = 7.5%; a significant portion of reported profit is driven by accounting accruals rather than cash generation, raising earnings management concerns","Accrual ratio = 10%; indicates strong asset utilisation and healthy profit conversion","Accrual ratio = 5%; at the investigation threshold but within normal range given the growth environment","Accrual ratio = 7.5%; indicates conservative accounting as cash is being retained and reinvested"],
+    correct:0,
+    exp:"Accrual ratio = (Net Income \u2212 OCF) \u00f7 Total Assets = (1.2 \u2212 0.3) \u00f7 12.0 = 0.9 \u00f7 12.0 = 7.5%. Above the 5% investigation threshold. A high accrual ratio means a large portion of reported profit exists only in accounting entries and has not converted to cash. Genuine profits convert to cash. Managed profits often do not."
+  },
+  {
+    section:"EARNINGS MANAGEMENT",
+    scenario:"Using Bello Agro's data: Revenue \u20a69.0bn. Opening receivables \u20a60.6bn, closing \u20a62.1bn. Revenue grew 50%. Receivables grew 250%. OCF fell 72.7% while net income rose. Average receivables = \u20a61.35bn. Receivables turnover = 6.67 times.",
+    q:"Which is the MOST analytically sound interpretation of all available signals taken together?",
+    opts:["The receivables turnover of 6.67 is healthy; the company is growing faster than industry and the cash flow timing lag is normal","Revenue growing 50% against industry 8%, receivables growing 250% against revenue 50%, OCF falling 72.7% while profit rose, and an elevated accrual ratio together constitute strong forensic evidence of premature revenue recognition under IFRS 15","The receivables turnover confirms efficient collection and the OCF decline reflects capital investment in the same period","The accrual ratio and receivables growth together confirm conservative accounting as revenue is being deferred appropriately"],
+    correct:1,
+    exp:"Forensic analysis triangulates all signals. No single ratio is conclusive but here all signals point the same direction: revenue 50% vs industry 8%; receivables 250% vs revenue 50%; OCF -72.7% while profit rose; accrual ratio 7.5%. These are the forensic fingerprints of aggressive revenue recognition under IFRS 15 \u2014 revenue being recognised before the control transfer test is genuinely satisfied."
+  },
+  {
+    section:"EARNINGS MANAGEMENT",
+    scenario:"During a highly profitable year, Apex Energy Plc increases its environmental remediation provision from \u20a6800m to \u20a63.2bn citing 'updated regulatory guidance.' The following year, profits are under pressure and it revises the provision back to \u20a6900m, releasing \u20a62.3bn to largely offset operational underperformance.",
+    q:"Which statement MOST accurately describes the IAS 37 implications of this pattern?",
+    opts:["This is normal IAS 37 practice \u2014 provisions are estimates and management has legitimate discretion to revise them","This pattern is 'cookie jar' earnings management: IAS 37.14 requires provisions to reflect a present obligation with a probable outflow \u2014 creating a large provision in a good year without a changed obligation and releasing it to offset poor performance violates the recognition criteria","The release of \u20a62.3bn is acceptable because the regulatory guidance changed, making the original provision no longer necessary","This becomes problematic only if the estimate changes are not disclosed under IAS 8"],
+    correct:1,
+    exp:"IAS 37.14 is explicit: a provision shall be recognised ONLY when a present obligation exists, outflow is probable, and a reliable estimate can be made. If the \u20a63.2bn provision was not justified by a genuine obligation, it should never have been recognised. Creating inflated provisions in profitable years to release in loss years ('cookie jar' accounting) directly violates IAS 37.14 \u2014 this is not a disclosure issue but a fundamental recognition failure."
+  },
+  {
+    section:"EARNINGS MANAGEMENT",
+    scenario:"Lagos Equipment Plc signs a \u20a64.5bn contract to supply and install industrial machinery by 31 March. On 28 December, the equipment is manufactured, an invoice is issued, and Lagos Equipment recognises the full \u20a64.5bn as revenue. Installation is scheduled for February. The equipment remains in Lagos Equipment's warehouse.",
+    q:"Which IFRS 15 provision is MOST directly violated?",
+    opts:["IFRS 15 Step 1 \u2014 the contract has not been properly identified because it lacks commercial substance without delivery","IFRS 15 Step 5 \u2014 revenue shall be recognised when a performance obligation is satisfied by transferring control; the customer cannot use or benefit from the equipment and control has not transferred \u2014 revenue cannot be recognised","IFRS 15 Step 3 \u2014 the transaction price of \u20a64.5bn has been incorrectly determined by excluding installation costs","IFRS 15 Step 2 \u2014 supply and installation should be identified as two separate performance obligations with allocated revenue"],
+    correct:1,
+    exp:"IFRS 15 Step 5 is the most directly violated principle. Revenue is recognised when control transfers to the customer \u2014 requiring the customer to have the ability to use and benefit from the good or service. The equipment is in Lagos Equipment's warehouse, undelivered, and not installed. The customer has no ability to use it. Control has not transferred. This is a textbook example of premature revenue recognition."
+  },
+  {
+    section:"IFRS 17",
+    q:"Under IFRS 17, the Fulfilment Cash Flows (FCF) of an insurance contract include all of the following EXCEPT:",
+    opts:["Present value of expected future premium receipts from the policyholder","Present value of expected future claims payments to policyholders","The Risk Adjustment for non-financial risk, compensating the insurer for uncertainty about claim timing and amounts","Expected future claims handling and contract administration expenses adjusted for time value of money"],
+    correct:2,
+    exp:"The FCF is the present value best estimate of all cash inflows (premiums) and outflows (claims, expenses). The Risk Adjustment for Non-Financial Risk is a SEPARATE building block \u2014 NOT part of FCF. The three IFRS 17 building blocks are: (1) FCF, (2) Risk Adjustment, and (3) CSM. The Risk Adjustment is added to FCF to arrive at the total insurance liability; it is not embedded within FCF itself."
+  },
+  {
+    section:"IFRS 17",
+    scenario:"Leadway Assurance writes a 5-year commercial property insurance contract. At inception: expected PV of premiums = \u20a62.8bn; Fulfilment Cash Flows (FCF) = \u20a62.2bn. After year 1, actual claims experience is worse than expected, reducing expected remaining FCF by \u20a6150m.",
+    q:"Which of the following MOST accurately describes the IFRS 17 accounting treatment?",
+    opts:["The \u20a6600m excess of premiums over FCF at inception is recognised as profit immediately; the year 1 adverse experience creates a separate loss provision","The \u20a6600m (premiums less FCF) forms the initial CSM held as a liability; the year 1 adverse FCF movement of \u20a6150m relating to future service adjusts the CSM downward, reducing future profit recognition without immediate P&L impact","The CSM is fixed at inception and cannot be adjusted; the \u20a6150m adverse year 1 experience goes immediately to profit or loss","The \u20a6600m CSM is released in equal annual instalments of \u20a6120m regardless of actual claims experience"],
+    correct:1,
+    exp:"At inception, premiums (\u20a62.8bn) exceed FCF (\u20a62.2bn) so the \u20a6600m difference becomes the initial CSM \u2014 held as a liability, not recognised as profit. Adverse experience relating to FUTURE service reduces the CSM (reducing future profit recognition) rather than going to P&L immediately. Only experience relating to PAST service goes through P&L. This smooths profit recognition to align with service delivery."
+  },
+  {
+    section:"IFRS 17",
+    scenario:"NAICOM reviews two Nigerian life insurance companies' IFRS 17 disclosures. Company A has a Risk Adjustment equal to 35% of its FCF. Company B's Risk Adjustment is 8% of its FCF. Both write life insurance policies of similar term lengths.",
+    q:"Which is the MOST likely correct interpretation of this difference?",
+    opts:["Company A is over-reserving and should be directed by NAICOM to reduce its Risk Adjustment to match industry norms","Company B is applying aggressive accounting by minimising its Risk Adjustment to improve reported profitability","Company A's portfolio carries materially greater non-financial risk uncertainty \u2014 perhaps higher mortality variance or more volatile claim patterns \u2014 requiring more compensation for bearing uncertainty beyond the FCF best estimate; Company B's risks are more predictable and diversified","The Risk Adjustment should be standardised across all life insurers by NAICOM to enable meaningful comparison"],
+    correct:2,
+    exp:"The Risk Adjustment compensates the insurer for uncertainty about whether actual claims will match the FCF best estimate. If Company A's portfolio has higher risk uncertainty \u2014 riskier lives, less diversified mortality risk, higher volatility \u2014 it legitimately requires a higher Risk Adjustment. It is not standardised; it reflects entity-specific risk exposure. A higher Risk Adjustment is not necessarily wrong \u2014 it may simply reflect a riskier book of business."
+  },
+  {
+    section:"IFRS 17",
+    q:"At the inception of an insurance contract, the Fulfilment Cash Flows EXCEED the present value of expected future premiums. Under IFRS 17, which describes the required accounting treatment?",
+    opts:["The excess FCF is held as a Contractual Service Margin to be released over the coverage period","The contract is onerous \u2014 no CSM is recognised; the excess of FCF over expected premiums represents an immediate loss which must be recognised in profit or loss at inception","The CSM absorbs the loss and is set to zero with the remaining balance deferred","The insurer must reprice the contract before it can be recognised under IFRS 17"],
+    correct:1,
+    exp:"The CSM can only be positive or zero \u2014 it cannot be negative. If FCF exceeds expected premiums, the contract is ONEROUS. In this case: no CSM is created (no unearned profit to defer); the excess of FCF over premiums is a Day One loss; this loss is recognised immediately in profit or loss at inception. IFRS 17 does not permit deferral of expected losses \u2014 a key improvement over IFRS 4."
+  },
+  {
+    section:"SYNTHESIS",
+    scenario:"A forensic analyst reviews a Nigerian company's annual report and identifies: (1) Revenue grew 30% vs industry 4%; (2) Receivables grew 200%; (3) OCF fell 65% while net income rose; (4) Board chair has served 21 years; (5) No independent directors; (6) No management commentary published.",
+    q:"Which combination MOST accurately categorises these concerns by applicable framework and principle?",
+    opts:["Items 1-3 raise earnings management concerns consistent with IFRS 15 premature revenue recognition; items 4-5 indicate NCCG 2018 violations of the Effectiveness and Independence principles; item 6 is non-compliance with SEC Nigeria's management commentary requirement for listed entities","Items 1-3 are direct evidence of outright fraud; items 4-6 are minor governance irregularities that do not affect financial statement reliability","Items 1-3 are normal for a high-growth company in a competitive sector; only items 4-6 are genuinely concerning","All six concerns are governance-related \u2014 the earnings signals cannot be assessed independently without a full IAS 37 provision review"],
+    correct:0,
+    exp:"Items 1-3 \u2014 revenue diverging from industry, receivables 200% vs 30% revenue, OCF falling while profit rises \u2014 are forensic fingerprints of aggressive earnings management, most likely premature IFRS 15 recognition. Items 4-5 \u2014 21-year board chair and no independent directors \u2014 violate NCCG 2018's Effectiveness and Independence principles. Item 6 violates SEC Nigeria's management commentary requirement. Corporate reporting accountability requires all these frameworks to be assessed simultaneously."
+  },
+  {
+    section:"SYNTHESIS",
+    scenario:"A CFO argues: 'IFRS 15 gives management the right to judge when performance obligations are satisfied. We have consistently judged that obligations are satisfied on invoice date across all contracts. This is a disclosed accounting policy and therefore fully IFRS-compliant.'",
+    q:"Which standards provide the MOST direct and complete challenge to the CFO's position?",
+    opts:["IAS 1.15 only \u2014 financial statements must present a true and fair view and recognition on invoice date violates faithful representation","IFRS 15.31 (revenue recognised when control transfers \u2014 an economic test not a billing event) combined with IAS 1.117 (significant judgments must be disclosed and defensible) \u2014 a disclosed policy is not automatically a correct policy","IAS 37.14 only \u2014 provisions must reflect present obligations and premature recognition creates implicit future liabilities","IFRS 17 \u2014 insurance-linked service contracts require current measurement which overrides IFRS 15 in this context"],
+    correct:1,
+    exp:"IFRS 15.31 is the primary challenge: revenue is recognised when control transfers to the customer \u2014 this is an economic substance test, not a billing event. IAS 1.117 requires disclosure of significant judgments in applying accounting policies, and those judgments must be defensible on economic grounds. A disclosed policy is not automatically a correct policy \u2014 disclosure does not excuse departure from the standard's fundamental control transfer requirement."
+  },
+  {
+    section:"SYNTHESIS",
+    scenario:"Ibadan Crown Holdings Plc: 30% revenue growth while receivables grew 180% and OCF fell 55%; no governance report; no management commentary; CFO chairs audit committee; insurance subsidiary has not adopted IFRS 17. A prospective investor asks: 'Is this a trustworthy reporting entity?'",
+    q:"Which response provides the MOST analytically complete and accurate assessment?",
+    opts:["The company appears trustworthy because it files IAS 1-compliant financial statements and operates in a regulated market with FRCN and SEC Nigeria oversight","The forensic signals suggest probable earnings management (receivables 180% vs revenue 30%; OCF -55%); CFO chairing audit committee violates NCCG 2018's Accountability principle; absent management commentary fails SEC Nigeria's requirement; IFRS 17 non-adoption means insurance liabilities are not current-value measured \u2014 collectively these represent significant reliability concerns","The company has concerns but is fundamentally reliable because financial statements are audited by an independent external firm","The governance concerns are serious but the financial statements are unaffected because audit independence is maintained through the external auditor regardless of audit committee composition"],
+    correct:1,
+    exp:"IAS 1 compliance alone does not make a report reliable \u2014 it is the minimum floor. Forensic signals (receivables 180% vs revenue 30%, OCF -55%) suggest earnings management. CFO chairing the audit committee violates NCCG 2018's Accountability principle \u2014 the committee cannot independently oversee work the CFO prepared. Absent management commentary fails SEC Nigeria's listed company requirements. IFRS 17 non-adoption (mandated by NAICOM from January 2023) means insurance liabilities may be materially misstated. The external audit provides a check but cannot compensate for structural governance failures and measurement policy violations."
+  }
+];
+
+let currentQ=0, userAnswers=[], answered=false;
+let timerInterval, timeLeft=1200;
+let studentName='', studentId='', studentEmail='';
+let submitTime='', scoreCorrect=0;
+
+// Validate all fields
+function validateFields(){
+  const n=document.getElementById('studentName').value.trim();
+  const i=document.getElementById('studentId').value.trim();
+  const e=document.getElementById('studentEmail').value.trim();
+  const emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  document.getElementById('btnStart').disabled=!(n.length>=2 && i.length>=3 && emailOk);
+}
+['studentName','studentId','studentEmail'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',validateFields);
+  document.getElementById(id).addEventListener('keypress',function(e){
+    if(e.key==='Enter') validateFields();
+  });
+});
+
+function startQuiz(){
+  studentName=document.getElementById('studentName').value.trim();
+  studentId=document.getElementById('studentId').value.trim();
+  studentEmail=document.getElementById('studentEmail').value.trim();
+  showScreen('screen-quiz');
+  document.getElementById('timer').style.display='block';
+  startTimer();
+  renderQuestion();
+}
+
+function startTimer(){
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    const m=Math.floor(timeLeft/60).toString().padStart(2,'0');
+    const s=(timeLeft%60).toString().padStart(2,'0');
+    const el=document.getElementById('timer');
+    el.textContent=m+':'+s;
+    if(timeLeft<=300) el.classList.add('urgent');
+    if(timeLeft<=0){clearInterval(timerInterval);submitQuiz();}
+  },1000);
+}
+
+function renderQuestion(){
+  const q=QUESTIONS[currentQ];
+  answered=false;
+  document.getElementById('progressFill').style.width=((currentQ/20)*100)+'%';
+  document.getElementById('qNum').textContent='Question '+(currentQ+1)+' of 20';
+  document.getElementById('qBadge').textContent=q.section;
+  const scBox=document.getElementById('scenarioBox');
+  if(q.scenario){scBox.style.display='block';document.getElementById('scenarioText').textContent=q.scenario;}
+  else{scBox.style.display='none';}
+  document.getElementById('questionText').textContent=q.q;
+  const container=document.getElementById('optionsContainer');
+  container.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const div=document.createElement('div');
+    div.className='option';
+    div.onclick=()=>selectOption(i);
+    div.dataset.idx=i;
+    div.innerHTML='<div class="opt-letter">'+['A','B','C','D'][i]+'</div><div>'+opt+'</div>';
+    container.appendChild(div);
+  });
+  document.getElementById('explanation').classList.remove('show');
+  document.getElementById('btnNext').classList.remove('show');
+  document.getElementById('btnSubmit').classList.remove('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function selectOption(idx){
+  if(answered) return;
+  answered=true;
+  const q=QUESTIONS[currentQ];
+  userAnswers[currentQ]=idx;
+  const options=document.querySelectorAll('.option');
+  options.forEach((opt,i)=>{
+    opt.onclick=null;
+    if(i===q.correct){opt.classList.add('correct');}
+    else if(i===idx&&i!==q.correct){opt.classList.add('wrong');}
+  });
+  document.getElementById('explanationText').textContent=q.exp;
+  document.getElementById('explanation').classList.add('show');
+  if(currentQ<19){document.getElementById('btnNext').classList.add('show');}
+  else{document.getElementById('btnSubmit').classList.add('show');}
+}
+
+function nextQuestion(){
+  if(currentQ<19){currentQ++;renderQuestion();}
+}
+
+function submitQuiz(){
+  clearInterval(timerInterval);
+  const now=new Date();
+  submitTime=now.toLocaleDateString('en-NG',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' at '+now.toLocaleTimeString('en-NG');
+  for(let i=0;i<20;i++){if(userAnswers[i]===undefined)userAnswers[i]=-1;}
+  scoreCorrect=0;
+  userAnswers.forEach((ans,i)=>{if(ans===QUESTIONS[i].correct)scoreCorrect++;});
+  const pct=Math.round((scoreCorrect/20)*100);
+  let grade,gradeClass;
+  if(pct>=75){grade='Excellent';gradeClass='grade-a';}
+  else if(pct>=60){grade='Good';gradeClass='grade-b';}
+  else if(pct>=45){grade='Fair';gradeClass='grade-c';}
+  else{grade='Needs Work';gradeClass='grade-d';}
+  document.getElementById('resultName').textContent=studentName;
+  document.getElementById('resultMeta').textContent='ID: '+studentId+' | '+studentEmail;
+  document.getElementById('scoreBig').textContent=scoreCorrect;
+  document.getElementById('scoreGrade').textContent=grade;
+  document.getElementById('scoreGrade').className='score-grade '+gradeClass;
+  document.getElementById('statCorrect').textContent=scoreCorrect;
+  document.getElementById('statWrong').textContent=20-scoreCorrect;
+  document.getElementById('statPct').textContent=pct+'%';
+  const rev=document.getElementById('reviewContainer');
+  rev.innerHTML='';
+  QUESTIONS.forEach((q,i)=>{
+    const ua=userAnswers[i];
+    const isCorrect=ua===q.correct;
+    const div=document.createElement('div');
+    div.className='review-item '+(isCorrect?'r-correct':'r-wrong');
+    div.innerHTML=`
+      <div class="review-q">${i+1}. ${q.q.substring(0,90)}${q.q.length>90?'...':''}</div>
+      <div class="review-ans">${isCorrect?'✓ Correct':'✗ Wrong'} — Your answer: ${ua>=0?['A','B','C','D'][ua]:'Not answered'}${!isCorrect?' | Correct: '+['A','B','C','D'][q.correct]:''}</div>
+      <div class="review-exp">${q.exp.substring(0,160)}${q.exp.length>160?'...':''}</div>`;
+    rev.appendChild(div);
+  });
+  document.getElementById('timer').style.display='none';
+  showScreen('screen-results');
+}
+
+function sendEmail(){
+  const pct=Math.round((scoreCorrect/20)*100);
+  let body='ACC 402 BRAIN TEASER RESULTS\n';
+  body+='==============================\n\n';
+  body+='STUDENT DETAILS\n';
+  body+='Name: '+studentName+'\n';
+  body+='Student ID: '+studentId+'\n';
+  body+='Email: '+studentEmail+'\n';
+  body+='Submitted: '+submitTime+'\n\n';
+  body+='SCORE SUMMARY\n';
+  body+='Score: '+scoreCorrect+' / 20 ('+pct+'%)\n';
+  body+='Correct: '+scoreCorrect+' | Wrong: '+(20-scoreCorrect)+'\n\n';
+  body+='QUESTION BY QUESTION\n';
+  body+='--------------------\n';
+  QUESTIONS.forEach((q,i)=>{
+    const ua=userAnswers[i];
+    const isCorrect=ua===q.correct;
+    const letters=['A','B','C','D'];
+    body+='Q'+(i+1)+' ['+q.section+']: '+(isCorrect?'CORRECT':'WRONG');
+    body+=' | Answered: '+(ua>=0?letters[ua]:'skipped');
+    if(!isCorrect) body+=' | Correct: '+letters[q.correct];
+    body+='\n';
+  });
+  body+='\n==============================\n';
+  body+='ACC 402: Corporate Reporting | Miva Open University';
+  const subject='ACC402 Brain Teaser: '+studentName+' ('+studentId+') — '+scoreCorrect+'/20';
+  const mailtoLink='mailto:mark@miva.university?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  window.location.href=mailtoLink;
+  document.getElementById('btnEmail').style.display='none';
+  document.getElementById('btnEmailSent').style.display='flex';
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>
